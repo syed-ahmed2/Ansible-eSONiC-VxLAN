@@ -1,0 +1,12 @@
+hostname        : "S1G1"
+bgp_asn         : '64500'
+bgp_router_id   : 1.1.1.1
+leaf1_int1      : Ethernet0
+leaf2_int1      : Ethernet68
+leaf3_int1      : Ethernet60
+leaf4_int1      : Ethernet76
+
+
+loopback0_ip    : 1.1.1.1/32
+
+mgmt_ip         : 172.17.100.28/24

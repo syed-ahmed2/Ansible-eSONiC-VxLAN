@@ -1,0 +1,12 @@
+hostname        : "S2G2"
+bgp_asn         : '64500'
+bgp_router_id   : 2.2.2.2
+leaf1_int1      : Ethernet12
+leaf2_int1      : Ethernet84
+leaf3_int1      : Ethernet0
+leaf4_int1      : Ethernet92
+
+
+loopback0_ip    : 2.2.2.2/32
+
+mgmt_ip         : 172.17.100.28/24

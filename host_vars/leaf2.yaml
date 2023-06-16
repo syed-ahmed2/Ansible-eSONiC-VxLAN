@@ -1,0 +1,14 @@
+hostname        : 'L2'
+bgp_asn         : '64000'
+bgp_router_id   : 22.22.22.22
+spine1_int1     : Ethernet80
+spine2_int1     : Ethernet84
+
+loopback0_ip    : 22.22.22.22/32
+loopback1_ip    : 100.1.1.1/32
+
+mclag_peer_ip   : 11.11.11.11
+mclag_peer_int1 : Ethernet8
+mclag_peer_int2 : Ethernet12
+
+mgmt_ip         : 172.17.100.31/24

@@ -1,0 +1,130 @@
+- hosts: leaf
+  connection: httpapi
+  gather_facts: false
+  collections:
+    - dellemc.enterprise_sonic
+
+  tasks:
+   - name: "server connected breakout configurations"
+     sonic_port_breakout:
+      config:
+      - name: '{{item}}'
+        mode: 1x40G
+     loop: '{{breakout_ports}}'
+
+   - name: "server connected port bring up"
+     sonic_interfaces:
+      config:
+       - name: '{{item}}'
+         enabled: true
+     loop: '{{server_ports}}'
+
+   - name: "mclag peer link port bring up"
+     sonic_interfaces:
+      config:
+       - name: '{{item}}'
+         enabled: true
+     loop: '{{mclag_peer_int}}'
+
+   - name: "create static port-channel"
+     vars:
+      ansible_connection: network_cli
+     sonic_config:
+      commands:
+       - interface PortChannel 1 mode on
+       - interface PortChannel 2 mode on
+       - interface PortChannel 3 mode on
+       - interface PortChannel 100 mode on
+         
+   - name: "mclag peer link lag bringup"
+     sonic_lag_interfaces:
+      config:
+       - name: '{{mclag_peer_link}}'
+         members:
+          interfaces:
+           - member: '{{item}}'
+     loop: '{{mclag_peer_int}}'
+
+   - name: "Create vlans for server"
+     sonic_vlans:
+      config:
+       - vlan_id: '{{svi_101}}'
+       - vlan_id: '{{svi_102}}'
+       - vlan_id: '{{svi_103}}'
+       - vlan_id: '{{svi_201}}'
+       - vlan_id: '{{svi_202}}'
+
+   - name: "mclag configuration"
+     vars:
+      ansible_connection: network_cli
+     sonic_config:
+      commands:
+       - mclag domain {{mclag_domain}}
+       - peer-link {{mclag_peer_link}}
+       - source-ip {{bgp_router_id}}
+       - peer-ip {{mclag_peer_ip}}
+       - interface PortChannel 1
+       - mclag 1
+       - interface PortChannel 2
+       - mclag 1
+       - interface PortChannel 3 
+       - mclag 1
+
+   - name: "mclag peerlink vlan configuration"
+     sonic_l2_interfaces:
+      config:
+       - name: '{{lag_int100}}'
+         trunk:
+          allowed_vlans:
+           - vlan: '{{svi_101}}'
+           - vlan: '{{svi_102}}'
+           - vlan: '{{svi_103}}'
+           - vlan: '{{svi_201}}'
+           - vlan: '{{svi_202}}'
+
+   - name: "configure anycast address"
+     vars:
+      ansible_connection: network_cli
+     sonic_config:
+      commands:
+       - ip anycast-address enable
+       - ip anycast-mac-address {{anycast_mac_address}}
+         
+   - name: "configure anycast ip address on leaf"
+     vars:
+      ansible_connection: network_cli
+     sonic_config:
+      commands:
+       - interface Vlan {{svi_101}}
+       - ip anycast-address {{svi_101_gwip}}/24
+       - neigh-suppress
+       - exit
+       - interface Vlan {{svi_102}}
+       - ip anycast-address {{svi_102_gwip}}/24
+       - neigh-suppress
+       - exit
+       - interface Vlan {{svi_103}}
+       - ip anycast-address {{svi_103_gwip}}/24
+       - neigh-suppress
+       - exit
+       - interface Vlan {{svi_201}}
+       - ip anycast-address {{svi_201_gwip}}/24
+       - neigh-suppress
+       - exit
+       - interface Vlan {{svi_202}}
+       - ip anycast-address {{svi_202_gwip}}/24
+       - neigh-suppress
+       - exit
+         
+
+
+   - name: "server mclag member configuration"
+     sonic_lag_interfaces:
+      config:
+       - name: '{{item.0}}'
+         members:
+          interfaces:
+           - member: '{{item.1}}'
+     with_together:
+      - '{{server_lag_name}}'
+      - '{{server_ports}}'

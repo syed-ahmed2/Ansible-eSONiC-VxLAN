@@ -1,0 +1,105 @@
+- hosts: leaf
+  connection: httpapi
+  gather_facts: false
+  collections:
+    - dellemc.enterprise_sonic
+
+  tasks:
+   - name: "Configure loopback0"
+     sonic_interfaces:
+      config:
+       - name: '{{loopback_inf0}}'
+       
+   - name: "Configure loopback0 ip"
+     sonic_l3_interfaces:
+      config:
+      - name: '{{loopback_inf0}}'
+        ipv4:
+         addresses:
+          - address: '{{loopback0_ip}}'
+
+   - name: "Configure loopback1"
+     sonic_interfaces:
+      config:
+       - name: '{{loopback_inf1}}'
+       
+   - name: "Configure loopback1 ip"
+     sonic_l3_interfaces:
+      config:
+      - name: '{{loopback_inf1}}'
+        ipv4:
+         addresses:
+          - address: '{{loopback1_ip}}'
+
+   - name: "Bringup link on spine connected interface"
+     sonic_interfaces:
+      config:
+      - name: '{{spine1_int1}}'
+        enabled: true
+      - name: '{{spine2_int1}}'
+        enabled: true
+
+   - name: "Configure ipv6 link local on spine connected interface"
+     sonic_l3_interfaces:
+      config:
+      - name: '{{spine1_int1}}'
+        ipv6:
+         enabled: true
+      - name: '{{spine2_int1}}'
+        ipv6:
+         enabled: true         
+   - name: "bgp underlay configuration"
+     sonic_bgp:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         router_id: "{{bgp_router_id}}"
+         log_neighbor_changes: False
+
+   - name: "bgp af underlay configuration"
+     sonic_bgp_af:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         address_family:
+          afis:
+          - afi: ipv4
+            safi: unicast
+            max_path:
+             ebgp: 2
+            redistribute:
+             - protocol: connected
+
+   - name: "bgp neighbors underlay configuration"
+     sonic_bgp_neighbors:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         peer_group:
+          - name: SPINE
+            remote_as:
+             peer_type: external
+            capability:
+             extended_nexthop: true
+         neighbors:
+          - neighbor: '{{spine1_int1}}'
+            peer_group: SPINE
+          - neighbor: '{{spine2_int1}}'
+            peer_group: SPINE
+
+   - name: "bgp neighbors af underlay configuration"
+     sonic_bgp_neighbors_af:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         neighbors:
+          - neighbor: '{{spine1_int1}}'
+            address_family:
+             - afi: ipv4
+               safi: unicast
+               activate: true
+               allowas_in:
+                value: 1
+          - neighbor: '{{spine2_int1}}'
+            address_family:
+             - afi: ipv4
+               safi: unicast
+               activate: true
+               allowas_in:
+                value: 1

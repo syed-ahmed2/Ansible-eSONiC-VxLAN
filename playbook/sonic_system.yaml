@@ -1,0 +1,12 @@
+---
+- name: Ansible hostname configuration example
+  hosts: dcsjc
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+  - name: configure host name
+    sonic_system:
+      config:
+        hostname: '{{hostname}}'

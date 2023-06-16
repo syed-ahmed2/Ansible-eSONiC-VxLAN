@@ -1,0 +1,33 @@
+- hosts: spine
+  connection: httpapi
+  gather_facts: false
+  collections:
+    - dellemc.enterprise_sonic
+
+  tasks:
+   - name: "bgp neighbors af overlay configuration"
+     sonic_bgp_neighbors_af:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         neighbors:
+          - neighbor: '{{leaf1_int1}}'
+            address_family:
+             - afi: l2vpn
+               safi: evpn
+               activate: true
+          - neighbor: '{{leaf2_int1}}'
+            address_family:
+             - afi: l2vpn
+               safi: evpn
+               activate: true
+          - neighbor: '{{leaf3_int1}}'
+            address_family:
+             - afi: l2vpn
+               safi: evpn
+               activate: true
+          - neighbor: '{{leaf4_int1}}'
+            address_family:
+             - afi: l2vpn
+               safi: evpn
+               activate: true
+       

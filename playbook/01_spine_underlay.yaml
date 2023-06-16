@@ -1,0 +1,117 @@
+- hosts: spine
+  connection: httpapi
+  gather_facts: false
+  collections:
+    - dellemc.enterprise_sonic
+
+  tasks:
+   - name: "Configure loopback0"
+     sonic_interfaces:
+      config:
+       - name: '{{loopback_inf0}}'
+
+   - name: "Configure loopback0 ip"
+     sonic_l3_interfaces:
+      config:
+      - name: '{{loopback_inf0}}'
+        ipv4:
+         addresses:
+          - address: '{{loopback0_ip}}'
+
+   - name: "bringup leaf connected ports"
+     sonic_interfaces:
+      config:
+       - name: '{{leaf1_int1}}'
+         enabled: true
+       - name: '{{leaf2_int1}}'
+         enabled: true
+       - name: '{{leaf3_int1}}'
+         enabled: true
+       - name: '{{leaf4_int1}}'
+         enabled: true
+
+   - name: "Configure ipv6 link local on leaf connected interface"
+     sonic_l3_interfaces:
+      config:
+      - name: '{{leaf1_int1}}'
+        ipv6:
+         enabled: true
+      - name: '{{leaf2_int1}}'
+        ipv6:
+         enabled: true         
+      - name: '{{leaf3_int1}}'
+        ipv6:
+         enabled: true
+      - name: '{{leaf4_int1}}'
+        ipv6:
+         enabled: true
+
+   - name: "bgp underlay configuration"
+     sonic_bgp:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         router_id: "{{bgp_router_id}}"
+         log_neighbor_changes: False
+
+   - name: "bgp af underlay configuration"
+     sonic_bgp_af:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         address_family:
+          afis:
+          - afi: ipv4
+            safi: unicast
+            max_path:
+             ebgp: 2
+            redistribute:
+             - protocol: connected
+
+   - name: "bgp neighbors underlay configuration"
+     sonic_bgp_neighbors:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         peer_group:
+          - name: LEAF
+            remote_as:
+             peer_type: external
+            capability:
+             extended_nexthop: true
+         neighbors:
+          - neighbor: '{{leaf1_int1}}'
+            peer_group: LEAF
+          - neighbor: '{{leaf2_int1}}'
+            peer_group: LEAF
+          - neighbor: '{{leaf3_int1}}'
+            peer_group: LEAF
+          - neighbor: '{{leaf4_int1}}'
+            peer_group: LEAF
+
+   - name: "bgp neighbors af underlay configuration"
+     sonic_bgp_neighbors_af:
+      config:
+       - bgp_as: "{{bgp_asn}}"
+         neighbors:
+          - neighbor: '{{leaf1_int1}}'
+            address_family:
+             - afi: ipv4
+               safi: unicast
+               activate: true
+          - neighbor: '{{leaf2_int1}}'
+            address_family:
+             - afi: ipv4
+               safi: unicast
+               activate: true
+          - neighbor: '{{leaf3_int1}}'
+            address_family:
+             - afi: ipv4
+               safi: unicast
+               activate: true
+          - neighbor: '{{leaf4_int1}}'
+            address_family:
+             - afi: ipv4
+               safi: unicast
+               activate: true
+
+
+
+

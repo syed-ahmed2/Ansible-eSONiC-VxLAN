@@ -1,0 +1,35 @@
+- hosts: rack1
+  connection: httpapi
+  gather_facts: false
+  collections:
+    - dellemc.enterprise_sonic
+
+  tasks:
+   - name: "rack1 vxlans configuration"
+     sonic_vxlans:
+      config:
+       - name: '{{rack1_vtep}}'
+         evpn_nvo: '{{rack1_nvo}}'
+         source_ip: '{{loopback1_ip.split(''/'')[0]}}'
+         vlan_map:
+           - vni: '{{vni_101}}'
+             vlan: '{{svi_101}}'
+           - vni: '{{vni_102}}'
+             vlan: '{{svi_102}}'
+           - vni: '{{vni_103}}'
+             vlan: '{{svi_103}}'
+           - vni: '{{vni_201}}'
+             vlan: '{{svi_201}}'
+           - vni: '{{vni_202}}'
+             vlan: '{{svi_202}}'
+
+   - name: "server lag vlan configuration"
+     sonic_l2_interfaces:
+      config:
+       - name: '{{item}}'
+         trunk:
+          allowed_vlans:
+           - vlan: '{{svi_101}}'
+           - vlan: '{{svi_102}}'
+           - vlan: '{{svi_103}}'
+     loop: '{{server_lag}}'         

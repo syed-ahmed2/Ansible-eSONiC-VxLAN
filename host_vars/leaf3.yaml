@@ -1,0 +1,14 @@
+hostname        : 'L3'
+bgp_asn         : '64001'
+bgp_router_id   : 33.33.33.33
+spine1_int1     : Ethernet4
+spine2_int1     : Ethernet0
+
+loopback0_ip    : 33.33.33.33/32
+loopback1_ip    : 100.1.1.2/32
+
+mclag_peer_ip   : 44.44.44.44
+mclag_peer_int1 : Ethernet8
+mclag_peer_int2 : Ethernet12
+
+mgmt_ip         : 172.17.100.25/24

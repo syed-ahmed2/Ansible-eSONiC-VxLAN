@@ -1,0 +1,11 @@
+---
+- hosts: sonic
+  connection: network_cli
+  gather_facts: no
+  collections:
+     - dellemc.enterprise_sonic
+  tasks:
+  - name: "Configure SNMP community for SONiC device along with 'save'"
+    sonic_config:
+      commands: ['snmp-server community dellcommunity group ro']
+      save: yes

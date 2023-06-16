@@ -1,0 +1,49 @@
+anycast_mac_address: 00:aa:aa:aa:aa:aa
+
+mclag_domain   : 1
+mclag_peer_link: PortChannel100
+mclag_peer_int : ['Ethernet8','Ethernet12']
+
+lag_ports : ['PortChannel 1','PortChannel 2','PortChannel 3','PortChannel 100',]
+
+lag_int1: PortChannel 1 
+lag_int2: PortChannel 2 
+lag_int3: PortChannel 3 
+lag_int100: PortChannel 100
+
+
+lag_name1: PortChannel1
+lag_name2: PortChannel2
+lag_name3: PortChannel3
+lag_name100: PortChannel100
+
+breakout_ports       : ["1/5", "1/6", "1/7"]
+server_ports         : ["Ethernet16","Ethernet20","Ethernet24"]
+server_lag           : ['PortChannel 1','PortChannel 2','PortChannel 3']
+server_lag_name      : ['PortChannel1','PortChannel2','PortChannel3']
+
+svi_101  : 101
+svi_102  : 102
+svi_103  : 103
+svi_201  : 201
+svi_202  : 202
+svi_4000 : 4000
+
+vni_101  : 10001
+vni_102  : 10002
+vni_103  : 10003
+vni_201  : 20001
+vni_202  : 20002
+vni_4000 : 400000
+
+rack1_vtep : vtep1
+rack2_vtep : vtep2
+
+rack1_nvo  : nvo1
+rack2_nvo  : nvo2
+
+svi_101_gwip : 10.101.1.254
+svi_102_gwip : 10.102.1.254
+svi_103_gwip : 10.103.1.254
+svi_201_gwip : 10.201.1.254
+svi_202_gwip : 10.202.1.254
